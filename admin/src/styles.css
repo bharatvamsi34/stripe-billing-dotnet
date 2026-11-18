@@ -1,0 +1,30 @@
+:root {
+  --bg: #f7f8fa; --panel: #fff; --text: #1a1d23; --muted: #6b7280; --line: #e5e7eb;
+  --accent: #4f46e5; --ok: #047857; --bad: #b91c1c; --warn: #b45309;
+  font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; color: var(--text); background: var(--bg);
+}
+body { margin: 0; padding: 24px 32px; }
+header { display: flex; justify-content: space-between; align-items: flex-end; gap: 24px; flex-wrap: wrap; margin-bottom: 20px; }
+h1 { margin: 0 0 4px; font-size: 22px; }
+.muted { color: var(--muted); margin: 0; font-size: 13px; }
+.connection { display: flex; gap: 8px; }
+input { padding: 8px 10px; border: 1px solid var(--line); border-radius: 6px; font: inherit; min-width: 200px; }
+button { padding: 8px 14px; border: 1px solid var(--line); border-radius: 6px; background: var(--panel); font: inherit; cursor: pointer; }
+.connection button { background: var(--accent); color: #fff; border-color: var(--accent); }
+.alert { background: #fef2f2; color: var(--bad); border: 1px solid #fecaca; padding: 10px 14px; border-radius: 6px; margin-bottom: 16px; }
+.cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px; margin-bottom: 20px; }
+.card { background: var(--panel); border: 1px solid var(--line); border-radius: 8px; padding: 14px 16px; display: flex; flex-direction: column; gap: 6px; }
+.card strong { font-size: 20px; font-variant-numeric: tabular-nums; }
+.ok { color: var(--ok); } .bad { color: var(--bad); }
+nav { display: flex; gap: 6px; margin-bottom: 12px; }
+nav button.active { background: var(--text); color: #fff; border-color: var(--text); }
+table { width: 100%; border-collapse: collapse; background: var(--panel); border: 1px solid var(--line); border-radius: 8px; overflow: hidden; font-size: 14px; }
+th, td { text-align: left; padding: 10px 14px; border-bottom: 1px solid var(--line); }
+th { font-size: 12px; text-transform: uppercase; letter-spacing: .04em; color: var(--muted); background: #fafafa; }
+.num { text-align: right; font-variant-numeric: tabular-nums; }
+.mono { font-family: ui-monospace, Menlo, Consolas, monospace; font-size: 12px; }
+.pill { padding: 2px 8px; border-radius: 999px; font-size: 12px; background: #eef2ff; color: var(--accent); }
+.pill[data-status="Active"], .pill[data-status="Paid"] { background: #ecfdf5; color: var(--ok); }
+.pill[data-status="PastDue"], .pill[data-status="PaymentFailed"], .pill[data-status="Unpaid"] { background: #fef2f2; color: var(--bad); }
+.pill[data-status="Canceled"], .pill[data-status="Void"] { background: #f3f4f6; color: var(--muted); }
+.pill[data-status="Incomplete"], .pill[data-status="Trialing"] { background: #fffbeb; color: var(--warn); }

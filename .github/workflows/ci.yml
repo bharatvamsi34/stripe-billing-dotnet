@@ -1,0 +1,79 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  api:
+    name: Build and test API
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-dotnet@v4
+        with:
+          global-json-file: global.json
+      - run: dotnet restore
+      - run: dotnet build --no-restore -c Release
+      - run: dotnet test --no-build -c Release --logger "trx;LogFileName=results.trx"
+      - name: Check migrations match the model
+        run: |
+          dotnet tool restore
+          dotnet ef migrations has-pending-model-changes -p src/StripeBilling.Infrastructure -s src/StripeBilling.Api
+
+  sqlserver-migrations:
+    name: Apply migrations to SQL Server
+    runs-on: ubuntu-latest
+    services:
+      sqlserver:
+        image: mcr.microsoft.com/mssql/server:2022-latest
+        env:
+          ACCEPT_EULA: "Y"
+          MSSQL_SA_PASSWORD: CiOnly_Str0ng!Passw0rd
+        ports:
+          - 1433:1433
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-dotnet@v4
+        with:
+          global-json-file: global.json
+      - run: dotnet tool restore
+      - name: Wait for SQL Server
+        run: |
+          for i in $(seq 1 30); do
+            (echo > /dev/tcp/localhost/1433) >/dev/null 2>&1 && exit 0
+            sleep 2
+          done
+          exit 1
+      - name: Apply migrations
+        run: >
+          dotnet ef database update
+          -p src/StripeBilling.Infrastructure -s src/StripeBilling.Api
+          --connection "Server=localhost,1433;Database=StripeBilling;User Id=sa;Password=CiOnly_Str0ng!Passw0rd;TrustServerCertificate=True"
+
+  admin:
+    name: Build admin UI
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: admin
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+          cache-dependency-path: admin/package-lock.json
+      - run: npm ci
+      - run: npx ng build
+
+  docker:
+    name: Build container image
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: docker build -t stripe-billing-api .
